@@ -1,3 +1,0 @@
-C:/Users/User/Desktop/Новая папка/build/CMakeFiles/game_server.dir
-C:/Users/User/Desktop/Новая папка/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/User/Desktop/Новая папка/build/CMakeFiles/ZERO_CHECK.dir
