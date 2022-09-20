@@ -99,8 +99,8 @@ namespace json_loader
                 std::string tmp;
                 std::getline(in, tmp);
                 json_model_game += tmp;
-            }            
-            
+            }
+
             auto model_game = boost::json::parse(json_model_game);
             auto maps = model_game.as_object().at("maps"s).as_array();
             for (const auto& map : maps)
@@ -111,4 +111,68 @@ namespace json_loader
 
         return game;
     }
+
+    boost::json::object MakeJson(const model::Building& model)
+    {
+        auto bounds = model.GetBounds();
+        json::object jv;
+        jv["x"] = bounds.position.x;
+        jv["y"] = bounds.position.y;
+        jv["h"] = bounds.size.height;
+        jv["w"] = bounds.size.width;
+        return jv;
+    }
+
+    boost::json::object MakeJson(const model::Office& model)
+    {
+        auto pos = model.GetPosition();
+        auto offset = model.GetOffset();
+        auto id = model.GetId();
+
+        json::object jv;
+
+        jv["id"] = id.operator*();
+        jv["x"] = pos.x;
+        jv["y"] = pos.y;
+        jv["offsetX"] = offset.dx;
+        jv["offsetY"] = offset.dy;
+        return jv;
+    }
+
+    boost::json::object MakeJson(const model::Road& model)
+    {
+        auto s = model.GetStart();
+        auto e = model.GetEnd();
+        json::object jv;
+        jv["x0"] = s.x;
+        jv["y0"] = s.y;
+        if (model.IsHorizontal()) jv["x1"] = e.x;
+        else jv["y1"] = e.y;
+        return jv;
+    }
+
+    boost::json::object MakeJsonResponseMapId(const model::Map& model)
+    {
+        json::object jv;
+        jv["id"] = model.GetId().operator*();
+        jv["name"] = model.GetName();
+        jv["roads"] = AddJsonArray(model.GetRoads());
+        jv["buildings"] = AddJsonArray(model.GetBuildings());
+        jv["offices"] = AddJsonArray(model.GetOffices());
+        return jv;
+    }
+
+    boost::json::array MakeJsonResponseMaps(const std::vector<model::Map>& model)
+    {
+        json::array jv;
+        for (const auto& map : model)
+        {
+            json::object json_map;
+            json_map["id"] = map.GetId().operator*();
+            json_map["name"] = map.GetName();
+            jv.emplace_back(std::move(json_map));
+        }
+        return jv;
+    }
+   
 }  // namespace json_loader

@@ -11,6 +11,7 @@
 using namespace std::literals;
 namespace net = boost::asio;
 namespace sys = boost::system;
+namespace fs = std::filesystem;
 
 namespace
 {
@@ -33,16 +34,18 @@ namespace
 
 int main(int argc, const char* argv[])
 {
-   /* if (argc != 2) 
+    if (argc != 3) 
     {
         std::cerr << "Usage: game_server <game-config-json>"sv << std::endl;
         return EXIT_FAILURE;
-    }*/
+    }
     try
     {
         // 1. Загружаем карту из файла и построить модель игры
-       // model::Game game = json_loader::LoadGame(argv[1]);
-        model::Game game = json_loader::LoadGame("C:/Users/User/cppbackend/sprint1/problems/map_json/solution/data/config.json");
+        model::Game game = json_loader::LoadGame(argv[1]);
+        const fs::path wwwroot = argv[2];
+        //model::Game game = json_loader::LoadGame("C:/Users/User/cppbackend/sprint1/problems/map_json/solution/data/config.json");
+       // const fs::path wwwroot = "C:/Users/User/cppbackend/sprint2/problems/static_content/solution/static";
         // 2. Инициализируем io_context
         const unsigned num_threads = std::thread::hardware_concurrency();
         net::io_context ioc(num_threads - 1);
@@ -58,7 +61,7 @@ int main(int argc, const char* argv[])
             });
 
         // 4. Создаём обработчик HTTP-запросов и связываем его с моделью игры
-        http_handler::RequestHandler handler{game};
+        http_handler::RequestHandler handler{game, wwwroot};
 
         // 5. Запустить обработчик HTTP-запросов, делегируя их обработчику запросов
         const auto address = net::ip::make_address("0.0.0.0");
